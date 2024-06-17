@@ -43,13 +43,13 @@ resource "helm_release" "kube-prometheus" {
 #   create_namespace = true
 # }
 
-resource "helm_release" "kube-events-exporter" {
-  provider         = helm
-  name             = "kube-events"
-  chart            = "../../charts/kubernetes-event-exporter"
-  namespace        = "logs"
-  create_namespace = true
-}
+# resource "helm_release" "kube-events-exporter" {
+#  provider         = helm
+#  name             = "kube-events"
+#  chart            = "../../charts/kubernetes-event-exporter"
+#  namespace        = "logs"
+#  create_namespace = true
+#}
 
 resource "helm_release" "elasticsearch" {
   provider         = helm
