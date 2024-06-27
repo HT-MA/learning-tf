@@ -2,6 +2,7 @@ provider "alicloud" {
   # 阿里云的配置信息
   access_key = "your AK"
   secret_key = "your SK"
+  region     = "ap-northeast-1" # 区域更改为日本东京
 }
 
 resource "alicloud_vpc" "vpc" {
@@ -12,7 +13,7 @@ resource "alicloud_vpc" "vpc" {
 resource "alicloud_vswitch" "vsw" {
   vpc_id     = alicloud_vpc.vpc.id
   cidr_block = "172.16.0.0/21"
-  zone_id    = "cn-beijing-b"
+  zone_id    = "ap-northeast-1a" # 更改为日本东京的可用区
 }
 
 resource "alicloud_security_group" "default" {
@@ -22,24 +23,21 @@ resource "alicloud_security_group" "default" {
 
 resource "alicloud_instance" "example" {
   # ECS 实例配置
-  image_id          = "centos_7_9_uefi_x64_20G_alibase_20230816.vhd"
-  instance_type    = "ecs.n2.small"  
-  availability_zone = "cn-beijing-b"
-  security_groups   = alicloud_security_group.default.*.id
-  
+  image_id           = "centos_7_9_uefi_x64_20G_alibase_20230816.vhd"
+  instance_type      = "ecs.u1-c1m8.large" # 修改实例类型为 ecs.u1-c1m8.large
+  availability_zone  = "ap-northeast-1a"   # 更改为日本东京的可用区
+  security_groups    = alicloud_security_group.default.*.id
   internet_max_bandwidth_out  = 1
   host_name                   = "master"
   internet_charge_type        = "PayByTraffic"
-
-  vswitch_id                 = alicloud_vswitch.vsw.id
-  password = "password"  # 你的 root 密码
-  user_data = <<-EOF
-              yum install git -y 
-              git clone https://github.com/HT-MA/learning-tf.git
-              EOF
+  vswitch_id                  = alicloud_vswitch.vsw.id
+  password                    = "password"  # 你的 root 密码
+  user_data                   = <<-EOF
+                                  yum install git -y 
+                                  git clone https://github.com/HT-MA/learning-tf.git
+                                  EOF
 }
 
-  
 resource "alicloud_security_group_rule" "allow_all_tcp" {
   type              = "ingress"
   ip_protocol       = "tcp"
@@ -50,7 +48,6 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
   security_group_id = alicloud_security_group.default.id
   cidr_ip           = "0.0.0.0/0"
 }
-  
 
 output "instance_id" {
   value = alicloud_instance.example.id
@@ -59,5 +56,3 @@ output "instance_id" {
 output "instance_ip" {
   value = alicloud_instance.example.public_ip
 }
-
-
